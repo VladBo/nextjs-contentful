@@ -1,7 +1,7 @@
-import Link from 'next/link'
-import Avatar from '../components/avatar'
-import DateComponent from '../components/date'
-import CoverImage from '../components/cover-image'
+import Link from "next/link";
+import Avatar from "./Avatar";
+import DateComponent from "./Date";
+import CoverImage from "../components/CoverImage";
 
 export default function HeroPost({
   title,
@@ -33,5 +33,5 @@ export default function HeroPost({
         </div>
       </div>
     </section>
-  )
+  );
 }
