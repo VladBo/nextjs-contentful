@@ -1,29 +1,33 @@
 import { useRouter } from "next/router";
 import Head from "next/head";
 import ErrorPage from "next/error";
-import Container from "../../components/Container";
+import Container from "../../components/@shared/Container";
 import PostBody from "../../components/Post/PostBody";
 import Header from "../../components/Header";
 import PostHeader from "../../components/Post/PostHeader";
-import SectionSeparator from "../../components/SectionSeparator";
 import Layout from "../../components/Layout";
-import { getAllPostsWithSlug, getPostBySlug, getHomepage } from "../../lib/api";
+import {
+  getAllPostsWithSlug,
+  getPostBySlug,
+  getLandingPageBySlug,
+} from "../../lib/api";
 import PostTitle from "../../components/Post/PostTitle";
+import SectionSeparator from "../../components/@shared/SectionSeparator";
 
-export default function Post({ post, header }) {
+const Post = (props) => {
   const router = useRouter();
+  const { isFallback } = router;
+  const { post, title, subtitle } = props;
 
-  if (!router.isFallback && !post) {
+  if (!isFallback && !post) {
     return <ErrorPage statusCode={404} />;
   }
 
   return (
     <Layout>
-      <Head>
-        <title>{header.title}</title>
-      </Head>
+      <Head>{title && <title>{title}</title>}</Head>
       <Container>
-        <Header title={header.title} />
+        {title && <Header title={title} subtitle={subtitle} />}
         {router.isFallback ? (
           <PostTitle>Loading…</PostTitle>
         ) : (
@@ -47,24 +51,45 @@ export default function Post({ post, header }) {
       </Container>
     </Layout>
   );
-}
+};
 
-export async function getStaticProps({ params }) {
-  const data = await getPostBySlug(params.slug);
-  const headerSettings = await getHomepage();
+export async function getStaticProps({ params, locale, locales }) {
+  const post = await getPostBySlug(params.slug, locale);
+  const { title, subtitle } = (await getLandingPageBySlug("/", locale)) ?? {};
+
+  if (!post) {
+    return {
+      notFound: true,
+    };
+  }
 
   return {
     props: {
-      post: data ?? null,
-      header: headerSettings ?? null,
+      post: post,
+      title: title,
+      subtitle: subtitle,
+      locale: locale,
+      locales: locales,
     },
   };
 }
 
-export async function getStaticPaths() {
-  const allPosts = await getAllPostsWithSlug();
+export async function getStaticPaths({ locales = [] }) {
+  const paths = [];
+
+  for (const locale of locales) {
+    let posts = await getAllPostsWithSlug(locale);
+    for (const post of posts) {
+      paths.push({
+        params: { slug: `/posts/${post.slug}` },
+        locale,
+      });
+    }
+  }
   return {
-    paths: allPosts?.map(({ slug }) => `/posts/${slug}`) ?? [],
+    paths: paths,
     fallback: true,
   };
 }
+
+export default Post;

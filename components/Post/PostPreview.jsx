@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Avatar from "../Avatar";
 import CoverImage from "../CoverImage";
-import DateComponent from "../Date";
+import DateComponent from "../@shared/Date";
 
 export default function PostPreview({
   title,

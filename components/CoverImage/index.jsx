@@ -1,4 +1,4 @@
-import ContentfulImage from "./ContentfulImage";
+import ContentfulImage from "../@shared/ContentfulImage";
 import Link from "next/link";
 import cn from "classnames";
 

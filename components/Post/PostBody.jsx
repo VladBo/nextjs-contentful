@@ -1,7 +1,7 @@
 import { documentToReactComponents } from "@contentful/rich-text-react-renderer";
 import { BLOCKS } from "@contentful/rich-text-types";
-import markdownStyles from "./markdown-styles.module.css";
-import RichTextAsset from "../RichTextAsset";
+import styles from "./PostBody.module.css";
+import RichTextAsset from "../@shared/RichTextAsset";
 
 const customMarkdownOptions = (content) => ({
   renderNode: {
@@ -17,7 +17,7 @@ const customMarkdownOptions = (content) => ({
 export default function PostBody({ content }) {
   return (
     <div className="max-w-2xl mx-auto">
-      <div className={markdownStyles["markdown"]}>
+      <div className={styles["markdown"]}>
         {documentToReactComponents(
           content.json,
           customMarkdownOptions(content)

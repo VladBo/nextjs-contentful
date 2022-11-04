@@ -1,20 +1,15 @@
 import Link from "next/link";
-import Avatar from "./Avatar";
-import DateComponent from "./Date";
-import CoverImage from "../components/CoverImage";
+import Avatar from "../Avatar";
+import DateComponent from "../@shared/Date";
+import CoverImage from "../CoverImage";
 
-export default function HeroPost({
-  title,
-  coverImage,
-  date,
-  excerpt,
-  author,
-  slug,
-}) {
+const HeroPost = ({ title, coverImage, date, excerpt, author, slug }) => {
   return (
     <section>
       <div className="mb-8 md:mb-16">
-        <CoverImage title={title} slug={slug} url={coverImage.url} />
+        {coverImage.url && (
+          <CoverImage title={title} slug={slug} url={coverImage.url} />
+        )}
       </div>
       <div className="md:grid md:grid-cols-2 md:gap-x-16 lg:gap-x-8 mb-20 md:mb-28">
         <div>
@@ -34,4 +29,6 @@ export default function HeroPost({
       </div>
     </section>
   );
-}
+};
+
+export default HeroPost;
