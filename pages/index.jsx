@@ -90,7 +90,6 @@ const indexPage = (props) => {
 };
 
 export const getStaticProps = async ({ locale, locales, preview = false }) => {
-  console.log("locale:", locale);
   const pageContent =
     (await getLandingPageBySlug("/", { locale, preview })) ?? {};
   // Hard limit by 20 posts.
