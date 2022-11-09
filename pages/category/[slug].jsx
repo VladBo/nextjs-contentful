@@ -2,23 +2,23 @@ import { useRouter } from "next/router";
 import Head from "next/head";
 import ErrorPage from "next/error";
 import Container from "../../components/@shared/Container";
-import PostBody from "../../components/Post/PostBody";
 import Header from "../../components/Header";
-import PostHeader from "../../components/Post/PostHeader";
 import Layout from "../../components/Layout";
 import {
-  getAllPostsWithSlug,
-  getPostBySlug,
+  getAllCategoriesWithSlug,
+  getCategoryBySlug,
   getLandingPageBySlug,
 } from "../../lib/api";
+import RecentPosts from "../../components/Post/RecentPosts";
 import PageTitle from "../../components/@shared/PageTitle";
+import LanguageSwitcher from "../../components/LanguageSwitcher";
 
-const Post = (props) => {
+const Category = (props) => {
   const router = useRouter();
   const { isFallback } = router;
-  const { post, title, subtitle, preview } = props;
+  const { category, title, subtitle, preview } = props;
 
-  if (!isFallback && !post) {
+  if (!isFallback && !category) {
     return <ErrorPage statusCode={404} />;
   }
 
@@ -33,16 +33,23 @@ const Post = (props) => {
           <>
             <article>
               <Head>
-                <title>{post.title}</title>
-                <meta property="og:image" content={post.coverImage.url} />
+                <title>{category.title}</title>
               </Head>
-              <PostHeader
-                title={post.title}
-                coverImage={post.coverImage}
-                date={post.date}
-                author={post.author}
+              <div className="text-right">
+                <LanguageSwitcher />
+              </div>
+              <PageTitle>{category.title}</PageTitle>
+              <p className="text-lg leading-relaxed mb-4">
+                {category.description}
+              </p>
+              <RecentPosts
+                title="Stories"
+                posts={
+                  category.linkedFrom.postCollection.items &&
+                  category.linkedFrom.postCollection.items.length > 0 &&
+                  category.linkedFrom.postCollection.items
+                }
               />
-              <PostBody content={post.content} />
             </article>
           </>
         )}
@@ -57,11 +64,11 @@ export async function getStaticProps({
   locales,
   preview = false,
 }) {
-  const post = await getPostBySlug(params.slug, { locale, preview });
+  const category = await getCategoryBySlug(params.slug, { locale, preview });
   const { title, subtitle } =
     (await getLandingPageBySlug("/", { locale })) ?? {};
 
-  if (!post) {
+  if (!category) {
     return {
       notFound: true,
     };
@@ -69,26 +76,27 @@ export async function getStaticProps({
 
   return {
     props: {
-      post,
-      title,
-      subtitle,
-      locale,
-      locales,
+      category: category,
+      title: title,
+      subtitle: subtitle,
+      locale: locale,
+      locales: locales,
       preview,
     },
+    revalidate: 10,
   };
 }
 
 export async function getStaticPaths({ locales = [] }) {
   const paths = [];
-
   for (const locale of locales) {
-    let posts = await getAllPostsWithSlug({ locale });
-    for (const post of posts) {
-      paths.push({
-        params: { slug: `/posts/${post.slug}` },
-        locale,
-      });
+    let categories = await getAllCategoriesWithSlug({ locale });
+    if (categories) {
+      for (const category of categories) {
+        paths.push({
+          params: { slug: `/category/${category.slug}` },
+        });
+      }
     }
   }
   return {
@@ -97,4 +105,4 @@ export async function getStaticPaths({ locales = [] }) {
   };
 }
 
-export default Post;
+export default Category;

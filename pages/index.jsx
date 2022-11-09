@@ -4,14 +4,17 @@ import HeroPost from "../components/Post/HeroPost";
 import RecentPosts from "../components/Post/RecentPosts";
 import Intro from "../components/Intro";
 import Layout from "../components/Layout";
-import { useRouter } from "next/router";
-import Link from "next/link";
 import LanguageSwitcher from "../components/LanguageSwitcher";
-import { getLandingPageBySlug, getRecentPosts } from "../lib/api";
+import {
+  getLandingPageBySlug,
+  getRecentPosts,
+  getAllCategoriesWithSlug,
+} from "../lib/api";
 import Container from "../components/@shared/Container";
+import CategoriesList from "../components/Category/CategoriesList";
 
 const indexPage = (props) => {
-  const { pageContent, recentPosts } = props;
+  const { pageContent, recentPosts, categories, preview } = props;
 
   const renderComponent = (component) => {
     switch (component.__typename) {
@@ -40,6 +43,15 @@ const indexPage = (props) => {
           />
         );
 
+      case "CategoriesListComponent":
+        return (
+          <CategoriesList
+            key={component.sys.id}
+            title={component.title}
+            categories={categories && categories.length > 0 && categories}
+          />
+        );
+
       case "Post":
         return (
           <HeroPost
@@ -57,7 +69,7 @@ const indexPage = (props) => {
 
   return (
     <>
-      <Layout>
+      <Layout preview={preview}>
         <Head>
           <title>{pageContent.title}</title>
         </Head>
@@ -77,11 +89,23 @@ const indexPage = (props) => {
   );
 };
 
-export async function getStaticProps({ locale, locales }) {
-  const pageContent = (await getLandingPageBySlug("/", locale)) ?? {};
+export const getStaticProps = async ({ locale, locales, preview = false }) => {
+  console.log("locale:", locale);
+  const pageContent =
+    (await getLandingPageBySlug("/", { locale, preview })) ?? {};
   // Hard limit by 20 posts.
-  const recentPosts = (await getRecentPosts(locale, 20)) ?? {};
-  return { props: { pageContent, recentPosts, locale, locales } };
-}
+  const recentPosts = (await getRecentPosts({ locale, limit: 20 })) ?? {};
+  const categories = (await getAllCategoriesWithSlug({ locale })) ?? {};
+  return {
+    props: {
+      pageContent,
+      recentPosts,
+      categories,
+      locale,
+      locales,
+      preview,
+    },
+  };
+};
 
 export default indexPage;

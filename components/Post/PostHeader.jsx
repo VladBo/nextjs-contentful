@@ -1,16 +1,16 @@
 import Avatar from "../Avatar";
 import CoverImage from "../CoverImage";
 import DateComponent from "../@shared/Date";
-import PostTitle from "./PostTitle";
+import PageTitle from "../@shared/PageTitle";
 import LanguageSwitcher from "../LanguageSwitcher";
 
 const PostHeader = ({ title, coverImage, date, author }) => {
   return (
     <>
-      <PostTitle>{title}</PostTitle>
       <div className="text-right">
         <LanguageSwitcher />
       </div>
+      <PageTitle>{title}</PageTitle>
       <div className="hidden md:block md:mb-12">
         {author && <Avatar name={author.name} picture={author.picture} />}
       </div>
